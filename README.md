@@ -1,6 +1,6 @@
 # depot
 
-The `system/` multi-project workspace (checked out at `~/development/system`).
+The project is striving to grow into a fully-fledged operating system with modular architecture.
 
 **Public submodules** — the components deployed through `~/dots`:
 [herbctl](https://github.com/akinevz2/herbctl),
