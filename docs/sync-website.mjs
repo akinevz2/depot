@@ -49,13 +49,20 @@ function sectionsFromMarkdown(md) {
 }
 
 const description = (md, readmePath) => {
-    // the README's first prose line is the project description (the
-    // architecture md opens with a mermaid fence — never a description)
+    // the README's first prose PARAGRAPH is the project description —
+    // consecutive non-heading lines joined (a wrapped tagline arrives
+    // whole; the architecture md opens with a mermaid fence — never a
+    // description)
     if (existsSync(readmePath)) {
-        for (const l of readFileSync(readmePath, "utf8").split("\n")) {
+        const para = [];
+        for (const l of readFileSync(readmePath, "utf8").split("\n").slice(1)) {
             const t = l.trim().replaceAll("`", "");
-            if (t && !t.startsWith("#")) return t;
+            if (!t) { if (para.length > 0) break; continue; }
+            if (t.startsWith("#")) continue;
+            para.push(t);
+            if (para.length >= 3) break;
         }
+        if (para.length > 0) return para.join(" ");
     }
     for (const l of md.split("\n")) {
         const t = l.trim();
