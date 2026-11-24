@@ -38,7 +38,7 @@ function sectionsFromMarkdown(md) {
         const text = body.join("\n");
         const content = [];
         const mm = text.match(/```mermaid\n([\s\S]*?)```/);
-        if (mm) content.push(mermaidImg(mm[1], head.trim()));
+        if (mm) content.push(mermaidImg(mm[1], safeAlt(head.trim())));
         for (const para of text.replace(/```mermaid[\s\S]*?```/, "").split(/\n{2,}/)) {
             const p = para.trim();
             if (p) content.push(p);
@@ -48,8 +48,17 @@ function sectionsFromMarkdown(md) {
     return sections;
 }
 
-const description = (md) =>
-    (md.split("\n").find((l) => l.trim() && !l.startsWith("#")) ?? "").trim();
+const description = (md) => {
+    for (const l of md.split("\n")) {
+        const t = l.trim();
+        if (!t || t.startsWith("#") || t.startsWith("```") || t.startsWith("![")) continue;
+        return t;
+    }
+    return "the architecture, structurally and logically";
+};
+
+/** the image alt: word-safe (the renderer breaks on colons/brackets) */
+const safeAlt = (heading) => heading.replace(/[^A-Za-z0-9 ]/g, "").trim();
 
 for (const p of PROJECTS) {
     if (!existsSync(p.docs)) {
@@ -70,6 +79,13 @@ for (const p of PROJECTS) {
         },
     };
     const out = join(website, `${p.slug}.json`);
+    // CURATED PAGES ARE NEVER REGENERATED: a page marked "curated": true
+    // is maintained by hand — the sync skips it (the architecture
+    // imagery was merged in once, at curation time).
+    if (existsSync(out) && JSON.parse(readFileSync(out, "utf8")).curated) {
+        console.log(`sync: ${p.slug} — curated, skipped`);
+        continue;
+    }
     writeFileSync(out, JSON.stringify(json, null, 2) + "\n");
     console.log(`sync: ${out}`);
 }
