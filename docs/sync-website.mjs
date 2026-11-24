@@ -16,12 +16,12 @@ const website = join(depot, "..", "personal", "website", "src", "content", "proj
 
 const TODAY = new Date().toISOString().slice(0, 10);
 const PROJECTS = [
-    { slug: "depot",     title: "depot",     repo: "https://github.com/akinevz2/depot",       docs: join(depot, "docs/architecture.md"), gh: "akinevz2/depot" },
-    { slug: "herbctl",   title: "herbctl",   repo: "https://github.com/akinevz2/herbctl",     docs: join(depot, "herbctl/docs/architecture.md"), gh: "akinevz2/herbctl" },
-    { slug: "herbstutil", title: "herbstutil", repo: "https://github.com/akinevz2/herbstutil", docs: join(depot, "herbstutil/docs/architecture.md"), gh: "akinevz2/herbstutil" },
-    { slug: "polyframes", title: "polyframes", repo: "https://github.com/akinevz2/polyframes", docs: join(depot, "polyframes/docs/architecture.md"), gh: "akinevz2/polyframes" },
-    { slug: "polytags",  title: "polytags",  repo: "https://github.com/akinevz2/polytags",    docs: join(depot, "polytags/docs/architecture.md"), gh: "akinevz2/polytags" },
-    { slug: "on-deploy", title: "on-deploy", repo: "https://github.com/akinevz2/on-deploy",   docs: join(depot, "on-deploy/docs/architecture.md"), gh: "akinevz2/on-deploy" },
+    { slug: "depot",     title: "depot",     repo: "https://github.com/akinevz2/depot",       docs: join(depot, "docs/architecture.md"), readme: join(depot, "README.md"), gh: "akinevz2/depot" },
+    { slug: "herbctl",   title: "herbctl",   repo: "https://github.com/akinevz2/herbctl",     docs: join(depot, "herbctl/docs/architecture.md"), readme: join(depot, "herbctl/README.md"), gh: "akinevz2/herbctl" },
+    { slug: "herbstutil", title: "herbstutil", repo: "https://github.com/akinevz2/herbstutil", docs: join(depot, "herbstutil/docs/architecture.md"), readme: join(depot, "herbstutil/README.md"), gh: "akinevz2/herbstutil" },
+    { slug: "polyframes", title: "polyframes", repo: "https://github.com/akinevz2/polyframes", docs: join(depot, "polyframes/docs/architecture.md"), readme: join(depot, "polyframes/README.md"), gh: "akinevz2/polyframes" },
+    { slug: "polytags",  title: "polytags",  repo: "https://github.com/akinevz2/polytags",    docs: join(depot, "polytags/docs/architecture.md"), readme: join(depot, "polytags/README.md"), gh: "akinevz2/polytags" },
+    { slug: "on-deploy", title: "on-deploy", repo: "https://github.com/akinevz2/on-deploy",   docs: join(depot, "on-deploy/docs/architecture.md"), readme: join(depot, "on-deploy/README.md"), gh: "akinevz2/on-deploy" },
 ];
 
 const b64 = (s) => Buffer.from(s, "utf8").toString("base64url");
@@ -48,7 +48,15 @@ function sectionsFromMarkdown(md) {
     return sections;
 }
 
-const description = (md) => {
+const description = (md, readmePath) => {
+    // the README's first prose line is the project description (the
+    // architecture md opens with a mermaid fence — never a description)
+    if (existsSync(readmePath)) {
+        for (const l of readFileSync(readmePath, "utf8").split("\n")) {
+            const t = l.trim().replaceAll("`", "");
+            if (t && !t.startsWith("#")) return t;
+        }
+    }
     for (const l of md.split("\n")) {
         const t = l.trim();
         if (!t || t.startsWith("#") || t.startsWith("```") || t.startsWith("![")) continue;
@@ -69,7 +77,7 @@ for (const p of PROJECTS) {
     const json = {
         slug: p.slug,
         title: p.title,
-        description: description(md),
+        description: description(md, p.readme),
         github: p.repo,
         lastModified: TODAY,
         content: {
