@@ -1,0 +1,13 @@
+# the unfinished subfolders — local-only until they are ready
+bin/
+database/
+ollama/
+openwebui/
+onlyoffice/
+turnstone/
+webuser/
+ytdlp/
+drop.mjs
+keybindings.json
+setup-polytags.sh
+node_modules/
