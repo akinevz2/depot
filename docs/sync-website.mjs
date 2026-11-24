@@ -25,8 +25,38 @@ const PROJECTS = [
 ];
 
 const b64 = (s) => Buffer.from(s, "utf8").toString("base64url");
-const mermaidImg = (code, heading) =>
-    `![${heading}](https://mermaid.ink/img/${b64(code)}?type=svg)`;
+
+// the themed-gray composite: the diagram background AND the arrow-label
+// backgrounds share the gray (the labels blend in), and themeCSS rounds
+// the container + the node bodies (12px). The base theme (not dark) so
+// the variables are the single source of the palette.
+const GRAY = "#3a3a3a";
+const RADIUS = "12px";
+const mermaidImg = (code, heading) => {
+    const cfg = {
+        code,
+        mermaid: {
+            theme: "base",
+            themeVariables: {
+                background: GRAY,
+                primaryColor: "#3d3d3d",
+                primaryBorderColor: "#5a5a5a",
+                primaryTextColor: "#e6e6e6",
+                lineColor: "#9a9a9a",
+                edgeLabelBackground: GRAY,
+                clusterBkg: "#333333",
+                clusterBorder: "#5a5a5a",
+                fontSize: "14px",
+            },
+            themeCSS: `svg, #container { border-radius: ${RADIUS}; }`
+                + ` .node rect, .node polygon { rx: 8px; ry: 8px; }`
+                + ` .edgeLabel foreignObject div, .edgeLabel span.edgeLabel`
+                + `, .labelBkg { background-color: ${GRAY}; }`,
+        },
+        backgroundColor: GRAY,
+    };
+    return `![${heading}](https://mermaid.ink/img/${b64(JSON.stringify(cfg))}?type=png)`;
+};
 
 function sectionsFromMarkdown(md) {
     // split on ## headings; a ```mermaid block becomes imagery, the
