@@ -90,7 +90,6 @@ const description = (md, readmePath) => {
             if (!t) { if (para.length > 0) break; continue; }
             if (t.startsWith("#")) continue;
             para.push(t);
-            if (para.length >= 3) break;
         }
         if (para.length > 0) return para.join(" ");
     }

@@ -9,6 +9,21 @@ The project is striving to grow into a fully-fledged operating system with modul
 [polytags](https://github.com/akinevz2/polytags),
 [on-deploy](https://github.com/akinevz2/on-deploy).
 
+Since 2026-11 these are **symlinks into the dots checkouts**, not
+depot submodules (`herbctl` → `~/dots/herbctl/.local/share/herbctl`,
+… — one working tree per project; the gitlinks and `.gitmodules`
+entries were retired). A fresh machine recreates them after `~/dots`
+is cloned and `make depends` has initialized its submodules:
+
+```sh
+for p in herbctl herbstutil on-deploy polyframes polytags; do
+    ln -s "$HOME/dots/$p/.local/share/$p" "$HOME/development/system/$p"
+done
+```
+
+`publish-dots.sh` step 4 verifies/repairs the links on every publish
+run — a missing link is self-healed there.
+
 Everything else (the prototyping directories) is gitignored and local
 until finished. See `docs/architecture.md` for the structural and
 logical maps.

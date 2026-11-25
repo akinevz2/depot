@@ -11,3 +11,11 @@ drop.mjs
 keybindings.json
 setup-polytags.sh
 node_modules/
+
+# the dots-owned submodule checkouts, symlinked (ONE working tree per
+# project — depot references dots' deploys; never a second checkout)
+/herbctl
+/herbstutil
+/on-deploy
+/polyframes
+/polytags
